@@ -3,3 +3,5 @@
 
 DHT sensor library for ESPx
 HttpClient
+PubSubClient
+Arduino_JSON
