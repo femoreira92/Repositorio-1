@@ -1,11 +1,12 @@
 /**
    ESP32 + DHT22 Example for Wokwi
-   
+   http://www.hivemq.com/demos/websocket-client/
    https://wokwi.com/arduino/projects/322410731508073042
 */
 #include "WiFi.h"
 #include "DHTesp.h"
 #include "PubSubClient.h"
+#include "HTTPClient.h"
 #include "Arduino_JSON.h"
 
 #define LED 2
@@ -26,7 +27,7 @@ const char* server = "broker.hivemq.com";
 const char* topico = "esp32SA3"; //"senai_tec_des"; //testtopic/2
 
 JSONVar data;
-
+HTTPClient network;
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 DHTesp dhtSensor;
@@ -73,10 +74,18 @@ void loop() {
   const int relayPin_4 = 13;
   const int DHT_PIN = 15;
   const int pinoLED = 17;
-
+  
   //conectando ao servidor:
   float temperatura = dhtSensor.getTemperature();
   float umidade = dhtSensor.getHumidity();
+
+  //conectando ao ThingSpeak
+  String path = url + "field1=" + String(temperatura) + "&field2=" + String(umidade);
+  network.begin(path);
+  int httpCode = network.GET();
+  String payload = network.getString();
+  Serial.println("HttpCode:" + String(httpCode));  
+  Serial.println("Payload:" + payload);
 
   data["temperatura"] = temperatura;
   data["umidade"] = umidade;
@@ -127,3 +136,5 @@ void loop() {
   delay(800);
   
 }
+
+//http://www.hivemq.com/demos/websocket-client/
